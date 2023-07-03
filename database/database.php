@@ -25,36 +25,61 @@ class Database
             array_push($allContactsFound, $row);
         }
 
-
         return $allContactsFound;
     }
 
-    public static function insertOneContact(Contact $contact): bool
+
+    /**
+     * @return void 
+     */
+
+    public static function insertOneContact(Contact $contact): void
     {
         $db = Config::getDB();
 
+        try {
+            $db->beginTransaction();
+            $insertContactQuery = $db->prepare('INSERT INTO contacts VALUES(NULL, :firstname, :lastname, :email)');
+            $insertContactQuery->execute([
+                "firstname" => $contact->firstName,
+                "lastname" => $contact->lastName,
+                "email" => $contact->email
+            ]);
 
-        $insertContactQuery = $db->prepare('INSERT INTO contacts VALUES(NULL, :firstname, :lastname, :email)');
-        $resultOfInsertingContact = $insertContactQuery->execute(["firstname" => $contact->firstName, "lastname" => $contact->lastName, "email" => $contact->email]);
 
 
-        if ($resultOfInsertingContact) {
+            $contactInsertedId = $db->lastInsertId();
 
-            $userInsertedId = $db->lastInsertId();
-
-            $result = false;
             foreach ($contact->contactNumbers as $contactNumber) {
-                var_dump($userInsertedId);
-                var_dump($contact->contactNumbers);
-                var_dump($contactNumber);
                 $insertContactNumberQuery = $db->prepare('INSERT INTO contact_numbers VALUES(NULL, :contactId, :contactNumber)');
-                $result = $insertContactNumberQuery->execute(["contactId" => $userInsertedId, "contactNumber" => $contactNumber]);
+                $insertContactNumberQuery->execute([
+                    "contactId" => $contactInsertedId,
+                    "contactNumber" => $contactNumber
+                ]);
             }
-            return $result;
+
+            $db->commit();
+        } catch (PDOException $e) {
+            $db->rollback();
+            throw $e;
         }
+    }
 
+    public static function deleteOneContact(int $id): void
+    {
+        $db = Config::getDB();
 
+        try {
+            $db->beginTransaction();
 
-        return false;
+            $db->prepare("DELETE FROM contact_numbers WHERE contact_id = :contactId")->execute(["contactId" => $id]);
+
+            $db->prepare("DELETE FROM contacts WHERE id = :contactId")->execute(["contactId" => $id]);
+
+            $db->commit();
+        } catch (PDOException $e) {
+            $db->rollback();
+            throw $e;
+        }
     }
 }

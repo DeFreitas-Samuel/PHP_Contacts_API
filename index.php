@@ -18,3 +18,4 @@ $newContact->lastName = "Eilish";
 $newContact->email = "billie@gmail.com";
 $newContact->contactNumbers = [1231231232, 1231234567, 4567811111];
 Database::insertOneContact($newContact);
+Database::deleteOneContact(8);
