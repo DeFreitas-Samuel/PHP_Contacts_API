@@ -4,4 +4,11 @@ This is an API that allows you to have a list of contacts with basic CRUD operat
 
 # How to run
 
-To run the project use the command php -S localhost:#### 
+To run the project:
+
+Requirements: Composer and Xampp/MAMP
+
+- use the command composer install
+- run all the queries inside of contacts.sql in mysql instance
+- adjust the Config.php accordingly for the connection
+- use the command php -S localhost:#### 
