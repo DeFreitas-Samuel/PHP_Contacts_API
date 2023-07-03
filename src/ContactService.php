@@ -18,4 +18,8 @@ class ContactService
     {
         return Database::getOneContactFromDB($id);
     }
+    public static function DeleteAUser(int $id)
+    {
+        return Database::deleteOneContactFromDB($id);
+    }
 }

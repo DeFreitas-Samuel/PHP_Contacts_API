@@ -17,8 +17,6 @@ class API
 
         if ($requestUrl == "/contacts" && $httpMethod == "GET") {
             header('Content-Type: application/json');
-
-
             echo self::encodeAllUsers();
         } elseif (preg_match("/contact\/\d+/", $requestUrl) && $httpMethod == "GET") {
 
@@ -37,10 +35,12 @@ class API
 
             echo "Moscow Mule";
         } elseif (preg_match("/contact\/\d+/", $requestUrl) && $httpMethod == "DELETE") {
+
             http_response_code(204);
+            preg_match("/\d+/", $requestUrl, $matches);
+            $userId = (int)$matches[0];
 
-
-            echo "Moscow Mule";
+            self::deleteAUser($userId);
         } else {
             http_response_code(404);
         }
@@ -102,5 +102,10 @@ class API
             }
         }
         return json_encode($contactsToReturn);
+    }
+
+    private static function deleteAUser(int $userId)
+    {
+        ContactService::DeleteAUser($userId);
     }
 }
