@@ -1,5 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
+namespace Samueldefreitas\PhpContactsApi\models;
+
+
 class Contact
 {
     public string $firstName;

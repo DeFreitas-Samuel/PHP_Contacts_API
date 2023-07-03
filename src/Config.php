@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+namespace Samueldefreitas\PhpContactsApi;
+
+
+
 class Config
 {
 
@@ -20,7 +24,7 @@ class Config
     public static function getDB()
     {
         if (self::$db === null) {
-            self::$db = new PDO(self::getConnectionString(), self::$user, self::$password);
+            self::$db = new \PDO(self::getConnectionString(), self::$user, self::$password);
         }
         return self::$db;
     }

@@ -1,0 +1,15 @@
+{
+    "name": "samueldefreitas/php_contacts_api",
+    "autoload": {
+        "psr-4": {
+            "Samueldefreitas\\PhpContactsApi\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "DeFreitas-Samuel",
+            "email": "52897285+DeFreitas-Samuel@users.noreply.github.com"
+        }
+    ],
+    "require": {}
+}
