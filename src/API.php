@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Samueldefreitas\PhpContactsApi;
 
-
+use Samueldefreitas\PhpContactsApi\database\Database;
+use Samueldefreitas\PhpContactsApi\models\Contact;
 
 
 class API
@@ -29,7 +30,9 @@ class API
             header('Content-Type: application/json');
             http_response_code(201);
 
-            echo "Eminencia";
+            $JsonBody = file_get_contents('php://input');
+            $DecodedJson = json_decode($JsonBody, true);
+            self::insertOneUser($DecodedJson);
         } elseif (preg_match("/contact\/\d+/", $requestUrl) && $httpMethod == "PUT") {
             http_response_code(204);
 
@@ -46,29 +49,7 @@ class API
         }
     }
 
-    private static function encodeOneContact(int $userId)
-    {
-        $requestedContact = ContactService::GetOneContact($userId);
 
-        $id = $requestedContact[0]['contact_id'];
-        $firstname = $requestedContact[0]['firstname'];
-        $lastname = $requestedContact[0]['lastname'];
-        $email = $requestedContact[0]['email'];
-        $numbers = array();
-        foreach ($requestedContact as $entry) {
-            $numbers[] = $entry['phone_number'];
-        }
-
-        $requestedContactJSON = [
-            "id" => $id,
-            "fistname" => $firstname,
-            "lastname" => $lastname,
-            "email" => $email,
-            "contactNumbers" => $numbers
-        ];
-
-        return json_encode($requestedContactJSON);
-    }
 
     private static function encodeAllUsers()
     {
@@ -102,6 +83,44 @@ class API
             }
         }
         return json_encode($contactsToReturn);
+    }
+
+    private static function encodeOneContact(int $userId)
+    {
+        $requestedContact = ContactService::GetOneContact($userId);
+
+        $id = $requestedContact[0]['contact_id'];
+        $firstname = $requestedContact[0]['firstname'];
+        $lastname = $requestedContact[0]['lastname'];
+        $email = $requestedContact[0]['email'];
+        $numbers = array();
+        foreach ($requestedContact as $entry) {
+            $numbers[] = $entry['phone_number'];
+        }
+
+        $requestedContactJSON = [
+            "id" => $id,
+            "fistname" => $firstname,
+            "lastname" => $lastname,
+            "email" => $email,
+            "contactNumbers" => $numbers
+        ];
+
+        return json_encode($requestedContactJSON);
+    }
+
+    private static function insertOneUser($contact)
+    {
+        $newContact = new Contact();
+
+        $newContact->firstName = $contact["firstName"];
+        $newContact->lastName = $contact["lastName"];
+        $newContact->email = $contact["email"];
+        $newContact->contactNumbers = $contact["phoneNumbers"];
+
+
+
+        Database::insertOneContactFromDB($newContact);
     }
 
     private static function deleteAUser(int $userId)
