@@ -19,33 +19,45 @@ class API
         if ($requestUrl == "/contacts" && $httpMethod == "GET") {
             header('Content-Type: application/json');
             echo self::encodeAllUsers();
-        } elseif (preg_match("/contact\/\d+/", $requestUrl) && $httpMethod == "GET") {
+        }
+
+        if (preg_match("/contact\/\d+/", $requestUrl) && $httpMethod == "GET") {
 
             header('Content-Type: application/json');
             preg_match("/\d+/", $requestUrl, $matches);
             $userId = (int)$matches[0];
 
             echo self::encodeOneContact($userId);
-        } elseif ($requestUrl == "/contact" && $httpMethod == "POST") {
+        }
+
+        if ($requestUrl == "/contact" && $httpMethod == "POST") {
             header('Content-Type: application/json');
-            http_response_code(201);
+            http_response_code(204);
 
             $JsonBody = file_get_contents('php://input');
             $DecodedJson = json_decode($JsonBody, true);
             self::insertOneUser($DecodedJson);
-        } elseif (preg_match("/contact\/\d+/", $requestUrl) && $httpMethod == "PUT") {
+        }
+
+        if (preg_match("/contact\/\d+/", $requestUrl) && $httpMethod == "PUT") {
+            header('Content-Type: application/json');
             http_response_code(204);
 
-            echo "Moscow Mule";
-        } elseif (preg_match("/contact\/\d+/", $requestUrl) && $httpMethod == "DELETE") {
+            preg_match("/\d+/", $requestUrl, $matches);
+            $userId = (int)$matches[0];
+
+            $JsonBody = file_get_contents('php://input');
+            $DecodedJson = json_decode($JsonBody, true);
+            self::updateOneUser($DecodedJson, $userId);
+        }
+
+        if (preg_match("/contact\/\d+/", $requestUrl) && $httpMethod == "DELETE") {
 
             http_response_code(204);
             preg_match("/\d+/", $requestUrl, $matches);
             $userId = (int)$matches[0];
 
             self::deleteAUser($userId);
-        } else {
-            http_response_code(404);
         }
     }
 
@@ -109,7 +121,7 @@ class API
         return json_encode($requestedContactJSON);
     }
 
-    private static function insertOneUser($contact)
+    private static function insertOneUser(array $contact)
     {
         $newContact = new Contact();
 
@@ -120,7 +132,21 @@ class API
 
 
 
-        Database::insertOneContactFromDB($newContact);
+        ContactService::AddOneContact($newContact);
+    }
+
+    private static function updateOneUser(array $contact, int $id)
+    {
+        $newContact = new Contact();
+
+        $newContact->firstName = $contact["firstName"];
+        $newContact->lastName = $contact["lastName"];
+        $newContact->email = $contact["email"];
+        $newContact->contactNumbers = $contact["phoneNumbers"];
+
+
+
+        ContactService::UpdateOneContact($newContact, $id);
     }
 
     private static function deleteAUser(int $userId)

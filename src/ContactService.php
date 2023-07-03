@@ -23,6 +23,10 @@ class ContactService
     {
         return Database::insertOneContactFromDB($contact);
     }
+    public static function UpdateOneContact(Contact $contact, int $id)
+    {
+        return Database::updateOneContactFromDB($contact, $id);
+    }
     public static function DeleteAUser(int $id)
     {
         return Database::deleteOneContactFromDB($id);

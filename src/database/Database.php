@@ -91,7 +91,7 @@ class Database
     /**
      * @return bool A bool value that indicates if the value was updated correctly
      */
-    public static function updateOneContactFromDB(int $id, Contact $contactToBeUploaded): bool
+    public static function updateOneContactFromDB(Contact $contactToBeUploaded, int $id,): bool
     {
         $db = Config::getDB();
 
