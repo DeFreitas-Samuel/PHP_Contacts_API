@@ -16,12 +16,17 @@ class API
 
 
         if ($requestUrl == "/contacts" && $httpMethod == "GET") {
-            //header('Content-Type: application/json');
+            header('Content-Type: application/json');
 
-            $allContacts =  ContactService::getAllContacts();
-            var_dump($allContacts);
+
+            echo self::encodeAllUsers();
         } elseif (preg_match("/contact\/\d+/", $requestUrl) && $httpMethod == "GET") {
-            self::showOneContact($requestUrl);
+
+            header('Content-Type: application/json');
+            preg_match("/\d+/", $requestUrl, $matches);
+            $userId = (int)$matches[0];
+
+            echo self::encodeOneContact($userId);
         } elseif ($requestUrl == "/contact" && $httpMethod == "POST") {
             header('Content-Type: application/json');
             http_response_code(201);
@@ -41,12 +46,8 @@ class API
         }
     }
 
-    private static function showOneContact(string $requestUrl)
+    private static function encodeOneContact(int $userId)
     {
-        header('Content-Type: application/json');
-        preg_match("/\d+/", $requestUrl, $matches);
-        $userId = (int)$matches[0];
-
         $requestedContact = ContactService::GetOneContact($userId);
 
         $id = $requestedContact[0]['contact_id'];
@@ -54,11 +55,11 @@ class API
         $lastname = $requestedContact[0]['lastname'];
         $email = $requestedContact[0]['email'];
         $numbers = array();
-        foreach ($requestedContact as $row) {
-            $numbers[] = $row['phone_number'];
+        foreach ($requestedContact as $entry) {
+            $numbers[] = $entry['phone_number'];
         }
 
-        $data = [
+        $requestedContactJSON = [
             "id" => $id,
             "fistname" => $firstname,
             "lastname" => $lastname,
@@ -66,6 +67,40 @@ class API
             "contactNumbers" => $numbers
         ];
 
-        echo json_encode($data);
+        return json_encode($requestedContactJSON);
+    }
+
+    private static function encodeAllUsers()
+    {
+        $allContacts =  ContactService::getAllContacts();
+
+        $contactsToReturn = [];
+
+        foreach ($allContacts as $entry) {
+            $contactId = $entry['contact_id'];
+            $contactIndex = -1;
+
+            foreach ($contactsToReturn as $index => $contact) {
+                if ($contact['id'] === $contactId) {
+                    $contactIndex = $index;
+                    break;
+                }
+            }
+
+            if ($contactIndex === -1) {
+                $newContact = [
+                    'id' => $entry['contact_id'],
+                    'firstname' => $entry['firstname'],
+                    'lastname' => $entry['lastname'],
+                    'email' => $entry['email'],
+                    'phoneNumbers' => [$entry['phone_number']]
+                ];
+                $contactsToReturn[] = $newContact;
+            } else {
+
+                $contactsToReturn[$contactIndex]['phoneNumbers'][] = $entry['phone_number'];
+            }
+        }
+        return json_encode($contactsToReturn);
     }
 }

@@ -29,7 +29,7 @@ class Database
         $allContactsFound = [];
 
         $allUsers = $db->query($searchAllContactsquery);
-        while ($row = $allUsers->fetch(\PDO::FETCH_OBJ)) {
+        while ($row = $allUsers->fetch(\PDO::FETCH_ASSOC)) {
             array_push($allContactsFound, $row);
         }
 
